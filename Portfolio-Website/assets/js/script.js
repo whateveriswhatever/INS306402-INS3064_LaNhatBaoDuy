@@ -250,29 +250,29 @@ srtop.reveal('.experience .timeline .container', { interval: 400 });
 srtop.reveal('.contact .container', { delay: 400 });
 srtop.reveal('.contact .container .form-group', { delay: 400 });
 
-const displaySkills = async(jsonPath) => {
-    try {
-        const response = await fetch(jsonPath);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status ${response.status}`);
-        }
-        const data = await response.json();
+// const displaySkills = async(jsonPath) => {
+//     try {
+//         const response = await fetch(jsonPath);
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status ${response.status}`);
+//         }
+//         const data = await response.json();
 
-        data.map((skill) => {
-            const htmlContent = `
-                <div id="skill-card">
-                    <img src="${skill["icon_img"]}" alt="${skill["name"]}" />
-                    <div>${skill["name"]}</div>
-                </div>
-            `;
-            $("skillsContainer").append(htmlContent);
-        });
-    } catch (err) {
-        console.error(`Could not fetch skills: ${err}`);
-        $("#skillsContainer").html("<p>Error loading data!</p>");
-    }
-};
+//         data.map((skill) => {
+//             const htmlContent = `
+//                 <div id="skill-card">
+//                     <img src="${skill["icon_img"]}" alt="${skill["name"]}" />
+//                     <div>${skill["name"]}</div>
+//                 </div>
+//             `;
+//             $("skillsContainer").append(htmlContent);
+//         });
+//     } catch (err) {
+//         console.error(`Could not fetch skills: ${err}`);
+//         $("#skillsContainer").html("<p>Error loading data!</p>");
+//     }
+// };
 
-$(document).ready(() => {
-    displaySkills("../newSkills.json");
-});
+// $(document).ready(() => {
+//     displaySkills("../newSkills.json");
+// });
