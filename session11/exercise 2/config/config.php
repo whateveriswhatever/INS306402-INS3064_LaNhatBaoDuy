@@ -3,7 +3,7 @@
         private static $instance = null;
         private $connection;
 
-        private function __construct(): void {
+        private function __construct() {
             $ip = "127.0.0.1";
             $dbname = "business";
             $port = 3306;

@@ -1,6 +1,6 @@
 <?php
     require_once "BaseController.php";
-    require_once "../../models/ProductModel.php";
+    require_once ROOT_DIR . "/models/ProductModel.php";
     class ProductController extends BaseController {
         /*
             Hiển thị danh sách sản phẩm (index) và trang tạo sản phẩm (create)

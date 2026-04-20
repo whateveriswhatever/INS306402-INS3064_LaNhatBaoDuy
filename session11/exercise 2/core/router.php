@@ -33,7 +33,7 @@
         private function abort(): void {
             http_response_code(404);
             echo "<div>
-                <h1 style='text-color: red'>404 Not Found</h1>
+                <h1 style='text-color: red;'>404 Not Found DCM</h1>
             </div>";
         }
 
@@ -58,7 +58,8 @@
                 ] 
             */
             $requestURI = parse_url($requestURI, PHP_URL_PATH);
-
+            echo "<div>URI: {$requestURI}</div>";
+            echo "<div>Method: {$requestMethod}</div>";
             if (!isset($this->routes[$requestMethod])) {
                 $this->abort();
             }

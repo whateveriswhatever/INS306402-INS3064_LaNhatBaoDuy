@@ -3,7 +3,7 @@
     class ProductModel extends BaseModel {
         public string $productName;
 
-        public function __construct(string $tableName): void {
+        public function __construct(string $tableName) {
             parent::__construct($tableName);
         }
 

@@ -2,8 +2,8 @@
         class BaseController {
             protected function view(string $view, array $data = []): void {
                 extract($data);
-                $content = "../views/{$view}.php";
-                require "../views/layouts/main.php";
+                $content = ROOT_DIR . "/app/views/{$view}.php";
+                require ROOT_DIR . "/app/views/layouts/main.php";
             }
 
             protected function redirect(string $url): void {

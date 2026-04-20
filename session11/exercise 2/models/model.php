@@ -5,7 +5,7 @@
         protected string $table;
         protected PDO $dbConnection;
 
-        public function __construct(string $table_name): void {
+        public function __construct(string $table_name) {
             $this->dbConnection = Database::getInstance()->getConnection();
             $this->table = $table_name;
         }
