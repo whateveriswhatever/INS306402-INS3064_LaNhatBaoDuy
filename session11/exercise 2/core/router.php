@@ -60,7 +60,9 @@
             $requestURI = parse_url($requestURI, PHP_URL_PATH);
             echo "<div>URI: {$requestURI}</div>";
             echo "<div>Method: {$requestMethod}</div>";
+
             if (!isset($this->routes[$requestMethod])) {
+                echo "<div>The request method ain't existed in defined routes!</div>";
                 $this->abort();
             }
 
@@ -74,8 +76,6 @@
                     $this->callAction($action, $params);
                 }
             }
-
-            $this->abort();
         }
     }
 ?>

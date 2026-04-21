@@ -10,23 +10,39 @@
 <div class="container">
     <h1>Create Product</h1>
 
-    <form method="POST" action="/products" id="productForm">
+    <form method="POST" action="<?= BASE_PATH ?>/products/create" id="productForm">
         
         <label>Name</label>
         <input type="text" name="productName" 
-            value="<?= $old['name'] ?? '' ?>">
+            value="<?= $old_data['name'] ?? '' ?>">
 
         <label>Category</label>
         <input type="text" name="productCategory"
-            value="<?= $old['category'] ?? '' ?>">
+            value="<?= $old_data['category'] ?? '' ?>">
 
         <label>Quantity</label>
         <input type="number" name="productQuantity"
-            value="<?= $old['quantity'] ?? '' ?>">
+            value="<?= $old_data['quantity'] ?? '' ?>">
 
         <label>Origin</label>
         <input type="text" name="productOrigin"
-            value="<?= $old['origin'] ?? '' ?>">
+            value="<?= $old_data['origin'] ?? '' ?>">
+        
+        <label>Distributor</label>
+        <input type="text" name="productDistributor"
+            value="<?= $old_data["distributor"] ?? "" ?>" />
+
+        <label>Company</label>
+        <input type="text" name="productCompany"
+            value="<?= $old_data["from_company"] ?? "" ?>" />
+
+        <label>Manufactured date</label>
+        <input type="date" name="productManufacturedDate"
+            value="<?= $old_data["manufactured_date"] ?>" />
+
+        <label>Expired date</label>
+        <input type="date" name="productExpiredDate"
+            value="<?= $old_data["expired_date"] ?>" />
 
         <button type="submit">Save Product</button>
     </form>
@@ -39,7 +55,7 @@
         </div>
     <?php endif; ?>
 
-    <a href="/products">Back to list</a>
+    <a href="<?= BASE_PATH ?>/">Back to list</a>
 </div>
 
 <script src="/assets/js/app.js"></script>

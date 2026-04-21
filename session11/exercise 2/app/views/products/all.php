@@ -1,6 +1,6 @@
 <div class="container">
     <h1>Product List</h1>
-    <?php $BASE_URL = "/INS306402-INS3064_LaNhatBaoDuy/session11/exercise 2/"; ?>
+    <?php $BASE_URL = "/INS306402-INS3064_LaNhatBaoDuy/session11/exercise 2/public/"; ?>
     <a href="<?= $BASE_URL ?>products/create" class="btn">+ Add Product</a>
 
     <table border="1">

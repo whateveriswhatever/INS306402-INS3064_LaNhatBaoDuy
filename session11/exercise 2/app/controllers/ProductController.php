@@ -17,9 +17,7 @@
         }
 
         public function create(): void {
-            if ($_SERVER["REQUEST_METHOD"] === "GET") {
-                $this->view("products/create");
-            }
+            $this->view("products/create");
         }
 
         public function store(): void {
@@ -28,22 +26,36 @@
                     "name" => $_POST["productName"] ?? "",
                     "category" => $_POST["productCategory"] ?? "",
                     "quantity" => $_POST["productQuantity"] ?? 0,
-                    "origin" => $_POST["productOrigin"] ?? ""
+                    "origin" => $_POST["productOrigin"] ?? "",
+                    "distributor" => $_POST["productDistributor"] ?? "",
+                    "from_company" => $_POST["productCompany"] ?? "",
+                    "manufactured_date" => $_POST["productManufacturedDate"] ?? null,
+                    "expired_date" => $_POST["productExpiredDate"] ?? null
                 ];
 
-                $errors = ($this->productModel)->validate($data);
-                if (!empty($errors)) {
-                    $this->view("products/create", [
-                        "errors" => $errors,
-                        "old" => $data
-                    ]);
-                }
+                // $errors = ($this->productModel)->validate($data);
+                // if (!empty($errors)) {
+                //     $this->view("products/create", [
+                //         "errors" => $errors,
+                //         "old" => $data
+                //     ]);
+                // }
 
                 // Save data to the DB
-                ($this->productModel)->add($data);
+                $isSuccess = ($this->productModel)->add($data);
+                if ($isSuccess) {
+                    echo "<div>Added successfully!</div>";
+                    $this->index();
+                } else {
+                    echo "<div>Failed to add</div>";
+                    $this->view("products/create", [
+                        "old_data" => $data
+                    ]);
+                    
+                }
             } else {
                 // GET: show blank form
-                $this->view("products/create");
+                $this->create();
             }
         }
 

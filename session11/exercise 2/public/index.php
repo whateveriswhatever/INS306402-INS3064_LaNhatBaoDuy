@@ -5,6 +5,7 @@
     Views should be rendered inside controllers, not here
   */
   define("ROOT_DIR", dirname(__DIR__));
+  define("BASE_PATH", "/INS306402-INS3064_LaNhatBaoDuy/session11/exercise 2/public");
   echo ROOT_DIR;
   require_once ROOT_DIR . "/core/router.php";
 

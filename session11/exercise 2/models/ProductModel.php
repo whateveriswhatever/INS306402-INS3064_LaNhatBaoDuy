@@ -3,18 +3,7 @@
     class ProductModel extends BaseModel {
         public string $productName;
 
-        public function __construct(string $tableName) {
-            parent::__construct($tableName);
-        }
-
-        private function isContainSpecialChars(string $str): bool {
-            if (preg_match("/[^a-zA-Z0-9]/", $str)) return true;
-            return false;
-        }
-
-        public function validate($data): bool {
-            if (empty($data)) return false;
-            $countryISOCode = [
+        private array $ISOCode = [
                 "Afghanistan" => "AF",
                 "Albania" => "AL",
                 "Algeria" => "DZ",
@@ -256,25 +245,66 @@
                 "Zambia" => "ZM",
                 "Zimbabwe" => "ZW"  
             ];
+
+        public function __construct(string $tableName) {
+            parent::__construct($tableName);
+        }
+
+        private function isContainSpecialChars(string $str): bool {
+            // \p{L}: Khớp với bất kỳ chữ cái nào từ bất kỳ ngôn ngữ nào (có dấu hoặc không)
+            // \p{N}: Khớp với bất kỳ con số nào
+            // \s: Khớp với khoảng trắng (dấu cách, tab, xuống dòng)
+            // Modifier /u: Bắt buộc phải có để PHP hiểu chuỗi theo chuẩn UTF-8
+            // if (preg_match("/[^a-zA-Z0-9]/", $str)) return true;
+            if (preg_match("/[^\p{L}\p{N}\s]/u", $str)) return true;
+            return false;
+        }
+
+        private function cleanWhiteSpace(string $str): string {
+            // \s+ : tìm tất cả các cụm khoảng trắng (dấu cách, tab, xuống dòng) có 1 hoặc nhiều ký tự
+            // " " : thay thế cụm đó bằng duy nhất 1 dấu cách bình thường
+            // /u : đảm bảo xử lý đúng chuẩn Unicode
+            $str = preg_replace("/\s+/u", " ", $str);
+            return trim($str);
+        }
+
+        
+
+        public function validate($data): bool {
+            if (empty($data)) return false;
+            echo "<div>validating data...</div>";
+            // echo "<div>received data: {$data}</div>";
+            
             $name = $data["name"];
             $category = $data["category"];
-            $quantity = $data["quantity"];
+            $quantity = (int)$data["quantity"];
             $origin = $data["origin"];
+            $distributor = $data["distributor"];
+            $company = $data["from_company"];
+            $manufuctured_date = $data["manufactured_date"];
+            $expired_date = $data["expired_date"];
+
+            $arr = [$name, $category, $quantity, $origin, $distributor, $company, $manufuctured_date, $expired_date];
+            foreach ($arr as $each) {
+                echo "<div>{$each}</div>";
+            }
+            
 
             if ($this->isContainSpecialChars($name)
                 || $this->isContainSpecialChars($category) 
-                || $this->isContainSpecialChars($origin)) return false;
-            
-            if ($quantity < 0 || gettype($quantity) !== "integer") return false;
-            if (!isset($countryISOCode[$origin])) return false;
+                || $this->isContainSpecialChars($origin)) {echo "<div>Data input contains special chars</div>";return false;}
+            echo gettype($quantity);
+            if ($quantity < 0 || gettype($quantity) !== "integer") {echo "<div>Quantity data type must be integer</div>";return false;}
+            if (!isset($this->ISOCode[$origin])) {echo "<div>ISO country code not found!</div>";return false;}
 
             return true;
 
         }
 
-        public function add($data): void {
+        public function add($data): bool {
             $isDataValidated = $this->validate($data);
-            if (!$isDataValidated) return;
+            if (!$isDataValidated) {echo "<div>Data is invalid to add</div>";return false;}
+            $data["origin"] = $this->ISOCode[$data["origin"]];
             $tableName = parent::getTableName();
             $keys = array_keys($data);
             $vals = array_values($data);
@@ -289,17 +319,22 @@
                 {$tableName} ($insertedCols)
                 values ({$bindingParams})
             ";
+            echo "<div>{$query}</div>";
             $params = [];
             for ($i = 0; $i < count($keys); $i++) {
                 $params[":{$keys[$i]}"] = $vals[$i];
             }
-            $stmt = (parent::getDBConnection())->prepare($query);
+            $pdo = parent::getDBConnection();
+            // $stmt = (parent::getDBConnection())->prepare($query);
+            $stmt = $pdo->prepare($query);
             if ($stmt->execute($params)) {
                 // Success
                 echo "<div>Added a new product!</div>";
+                return true;
             } else {
                 // Failure
                 echo "<div>Failed to add new product!</div>";
+                return false;
             }
         }
 
