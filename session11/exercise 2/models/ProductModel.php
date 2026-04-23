@@ -1,4 +1,5 @@
 <?php
+    use Ds\Set;
     require_once "model.php";
     class ProductModel extends BaseModel {
         public string $productName;
@@ -286,71 +287,108 @@
 
         public function validate($data): bool {
             if (empty($data)) return false;
-            echo "<div>validating data...</div>";
-            // echo "<div>received data: {$data}</div>";
+            try {
+                echo "<div>validating data...</div>";
             
-            $name = $data["name"];
-            $category = $data["category"];
-            $price = (int)$data["price"];
-            $quantity = (int)$data["quantity"];
-            $origin = $data["origin"];
-            $distributor = $data["distributor"];
-            $company = $data["from_company"];
-            $manufuctured_date = $data["manufactured_date"];
-            $expired_date = $data["expired_date"];
+            
+                $name = $data["name"];
+                $category = $data["category"];
+                $price = (int)$data["price"];
+                $quantity = (int)$data["quantity"];
+                $origin = $data["origin"];
+                $distributor = $data["distributor"];
+                $company = $data["from_company"];
+                $manufuctured_date = $data["manufactured_date"];
+                $expired_date = $data["expired_date"];
 
-            $arr = [$name, $category, $quantity, $origin, $distributor, $company, $manufuctured_date, $expired_date];
-            foreach ($arr as $each) {
-                echo "<div>{$each}</div>";
+                $arr = [$name, $category, $quantity, $origin, $distributor, $company, $manufuctured_date, $expired_date];
+                foreach ($arr as $each) {
+                    echo "<div>{$each}</div>";
+                }
+            
+
+                if ($this->isContainSpecialChars($name)
+                    || $this->isContainSpecialChars($category) 
+                    || $this->isContainSpecialChars($origin)) {echo "<div>Data input contains special chars</div>";return false;}
+                echo gettype($quantity);
+                if ($quantity < 0 || gettype($quantity) !== "integer") {echo "<div>Quantity data type must be integer</div>";return false;}
+                if ($price <= 0 || gettype($price) !== "integer") {echo "<div>Product price must be integer and larger than 0!</div>"; return false;}
+                if (!isset($this->ISOCode[$origin])) {echo "<div>ISO country code not found!</div>";return false;}
+    
+                return true;
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                throw $e;
             }
             
-
-            if ($this->isContainSpecialChars($name)
-                || $this->isContainSpecialChars($category) 
-                || $this->isContainSpecialChars($origin)) {echo "<div>Data input contains special chars</div>";return false;}
-            echo gettype($quantity);
-            if ($quantity < 0 || gettype($quantity) !== "integer") {echo "<div>Quantity data type must be integer</div>";return false;}
-            if ($price <= 0 || gettype($price) !== "integer") {echo "<div>Product price must be integer and larger than 0!</div>"; return false;}
-            if (!isset($this->ISOCode[$origin])) {echo "<div>ISO country code not found!</div>";return false;}
-    
-            return true;
 
         }
 
         public function add($data): bool {
             $isDataValidated = $this->validate($data);
             if (!$isDataValidated) {echo "<div>Data is invalid to add</div>";return false;}
-            $data["origin"] = $this->ISOCode[$data["origin"]];
-            $tableName = parent::getTableName();
-            $keys = array_keys($data);
-            $vals = array_values($data);
-            $bindingParams = implode(" , ", array_map(function($key) {
-                return ":{$key}";
-            }, $keys));
-            $insertedCols = implode(" , ", array_map(function($key) {
-                return "{$key}";
-            }, $keys));
-            $query = "
-                insert into
-                {$tableName} ($insertedCols)
-                values ({$bindingParams})
-            ";
-            echo "<div>{$query}</div>";
-            $params = [];
-            for ($i = 0; $i < count($keys); $i++) {
-                $params[":{$keys[$i]}"] = $vals[$i];
+            try {
+                $data["origin"] = $this->ISOCode[$data["origin"]];
+                $tableName = parent::getTableName();
+                $keys = array_keys($data);
+                $vals = array_values($data);
+                $bindingParams = implode(" , ", array_map(function($key) {
+                    return ":{$key}";
+                }, $keys));
+                $insertedCols = implode(" , ", array_map(function($key) {
+                    return "{$key}";
+                }, $keys));
+                $query = "
+                    insert into
+                    {$tableName} ($insertedCols)
+                    values ({$bindingParams})
+                ";
+                echo "<div>{$query}</div>";
+                $params = [];
+                for ($i = 0; $i < count($keys); $i++) {
+                    $params[":{$keys[$i]}"] = $vals[$i];
+                }
+                $pdo = parent::getDBConnection();
+                // $stmt = (parent::getDBConnection())->prepare($query);
+                $stmt = $pdo->prepare($query);
+                if ($stmt->execute($params)) {
+                    // Success
+                    echo "<div>Added a new product!</div>";
+                    return true;
+                } else {
+                    // Failure
+                    echo "<div>Failed to add new product!</div>";
+                    return false;
+                }
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                throw $e;
             }
-            $pdo = parent::getDBConnection();
-            // $stmt = (parent::getDBConnection())->prepare($query);
-            $stmt = $pdo->prepare($query);
-            if ($stmt->execute($params)) {
-                // Success
-                echo "<div>Added a new product!</div>";
-                return true;
-            } else {
-                // Failure
-                echo "<div>Failed to add new product!</div>";
-                return false;
+            
+        }
+
+        public function deleteViaID(int $id): bool {
+            $data = parent::find(["id" => $id]);
+            if (empty($data)) return false;
+            try {
+                $tableName = parent::getTableName();
+                $query = "
+                    delete from {$tableName}
+                    where id = :id 
+                ";
+                $params = [":id" => $id];
+                $stmt = ($this->dbConnection)->prepare($query);
+                $isSuccess = $stmt->execute($params);
+                if ($isSuccess) {
+                    echo "<div>Deleted product ID: $id</div>";
+                    return true;
+                } else {
+                    echo "<div>Failed to erase product ID: $id</div>";
+                    return false;
+                }
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                throw $e;
             }
         }
 
@@ -359,38 +397,42 @@
                 Inside string, only variable interpolation "$var" or concatenation works */
             $isDataValidated = $this->validate($new_data);
             if (!$isDataValidated) return false;
-            $currId = $new_data["id"];
-            if ($currId < 1) return false;
-            $new_data["origin"] = $this->ISOCode[$new_data["origin"]];
-            echo "<div>Equivalent ISO code: {$new_data['origin']}</div>";
-            $tableName = parent::getTableName();
-            $keys = array_keys($new_data);
-            $vals = array_values($new_data);
-            $bindingParams = array_map(function($key) {return ":$key";}, $keys);
-            /*
-                update table products
-                set name = :name, origin = :origin,...
-                where id = :id
-             */
-            $bindingParams = implode(" , ", array_map(function ($key) {return "$key = :$key";}, $keys));  
-            $query = "
-                update $tableName
-                set $bindingParams
-                where id = $currId";
-            $params = [];
-            for ($i = 0; $i < count($keys); $i++) {
-                $params[$keys[$i]] = $vals[$i];
+            try {
+                $currId = $new_data["id"];
+                if ($currId < 1) return false;
+                $new_data["origin"] = $this->ISOCode[$new_data["origin"]];
+                echo "<div>Equivalent ISO code: {$new_data['origin']}</div>";
+                $tableName = parent::getTableName();
+                $keys = array_keys($new_data);
+                $vals = array_values($new_data);
+                $bindingParams = array_map(function($key) {return ":$key";}, $keys);
+                /*
+                    update table products
+                    set name = :name, origin = :origin,...
+                    where id = :id
+                */
+                $bindingParams = implode(" , ", array_map(function ($key) {return "$key = :$key";}, $keys));  
+                $query = "
+                    update $tableName
+                    set $bindingParams
+                    where id = $currId";
+                $params = [];
+                for ($i = 0; $i < count($keys); $i++) {
+                    $params[$keys[$i]] = $vals[$i];
+                }
+                $pdo = parent::getDBConnection();
+                $stmt = $pdo->prepare($query);
+                if ($stmt->execute($params)) {
+                    echo "<div>Updated product ID: $currId</div>";
+                    return true;
+                } else {
+                    echo "<div>Failed to update product ID: $currId</div>";
+                    return false;
+                }
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                throw $e;
             }
-            $pdo = parent::getDBConnection();
-            $stmt = $pdo->prepare($query);
-            if ($stmt->execute($params)) {
-                echo "<div>Updated product ID: $currId</div>";
-                return true;
-            } else {
-                echo "<div>Failed to update product ID: $currId</div>";
-                return false;
-            }
-            
         }
     }
 ?>

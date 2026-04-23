@@ -46,6 +46,7 @@
   $router->post("/products/create", "ProductController@store");
   $router->get("/products/edit", "ProductController@edit");
   $router->post("/products/update", "ProductController@update");
+  $router->get("/products/delete", "ProductController@delete");
 
   // Start processing
   $router->dispatch(

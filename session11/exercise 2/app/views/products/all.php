@@ -31,6 +31,7 @@
                         <td><?= $product["manufactured_date"] ?></td>
                         <td><?= $product["expired_date"] ?></td>
                         <td><a href="<?= $BASE_URL ?>products/edit?id=<?= $product["id"] ?>">Edit</a></td>
+                        <td><a href="<?= $BASE_URL ?>products/delete?id=<?= $product["id"] ?>">Delete</a></td>
                        
                     </tr>
                 <?php endforeach; ?>
