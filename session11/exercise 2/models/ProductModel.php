@@ -268,7 +268,12 @@
             return trim($str);
         }
 
-        
+        private function exchangeISOCode(string $country): string {
+            if (!isset($this->ISOCode[$country])) {
+                return "";
+            }
+            return $this->ISOCode[$country];
+        }
 
         public function validate($data): bool {
             if (empty($data)) return false;
@@ -296,7 +301,7 @@
             echo gettype($quantity);
             if ($quantity < 0 || gettype($quantity) !== "integer") {echo "<div>Quantity data type must be integer</div>";return false;}
             if (!isset($this->ISOCode[$origin])) {echo "<div>ISO country code not found!</div>";return false;}
-
+    
             return true;
 
         }
@@ -338,6 +343,43 @@
             }
         }
 
-        
+        public function update(array $new_data): bool {
+            /* <?=  ?> works in HTML/PHP templates, not inside strings
+                Inside string, only variable interpolation "$var" or concatenation works */
+            $isDataValidated = $this->validate($new_data);
+            if (!$isDataValidated) return false;
+            $currId = $new_data["id"];
+            if ($currId < 1) return false;
+            $new_data["origin"] = $this->ISOCode[$new_data["origin"]];
+            echo "<div>Equivalent ISO code: {$new_data['origin']}</div>";
+            $tableName = parent::getTableName();
+            $keys = array_keys($new_data);
+            $vals = array_values($new_data);
+            $bindingParams = array_map(function($key) {return ":$key";}, $keys);
+            /*
+                update table products
+                set name = :name, origin = :origin,...
+                where id = :id
+             */
+            $bindingParams = implode(" , ", array_map(function ($key) {return "$key = :$key";}, $keys));  
+            $query = "
+                update $tableName
+                set $bindingParams
+                where id = $currId";
+            $params = [];
+            for ($i = 0; $i < count($keys); $i++) {
+                $params[$keys[$i]] = $vals[$i];
+            }
+            $pdo = parent::getDBConnection();
+            $stmt = $pdo->prepare($query);
+            if ($stmt->execute($params)) {
+                echo "<div>Updated product ID: $currId</div>";
+                return true;
+            } else {
+                echo "<div>Failed to update product ID: $currId</div>";
+                return false;
+            }
+            
+        }
     }
 ?>

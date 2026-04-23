@@ -28,6 +28,8 @@
                         <td><?= $product["from_company"] ?></td>
                         <td><?= $product["manufactured_date"] ?></td>
                         <td><?= $product["expired_date"] ?></td>
+                        <td><a href="<?= $BASE_URL ?>products/edit?id=<?= $product["id"] ?>">Edit</a></td>
+                       
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
