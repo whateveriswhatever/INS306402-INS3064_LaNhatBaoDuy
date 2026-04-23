@@ -8,6 +8,7 @@
             <tr>
                 <th>Name</th>
                 <th>Category</th>
+                <th>Price</th>
                 <th>Quantity</th>
                 <th>Origin</th>
                 <th>Distributor</th>
@@ -22,6 +23,7 @@
                     <tr>
                         <td><?= $product['name'] ?></td>
                         <td><?= $product['category'] ?></td>
+                        <td><?= $product['price'] ?></td>
                         <td><?= $product['quantity'] ?></td>
                         <td><?= $product['origin'] ?></td>
                         <td><?= $product["distributor"] ?></td>

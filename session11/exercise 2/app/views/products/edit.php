@@ -26,6 +26,22 @@
             </div>
 
             <div>
+                <p>Category</p>
+                <div>
+                    <input type="text" name="productCategory" placeholder="Etner new product type"
+                    value="<?= $product['category'] ?>" />
+                </div>
+            </div>
+
+            <div>
+                <p>Price</p>
+                <div>
+                    <input type="number" name="productPrice" placeholder="Enter new product price"
+                    value="<?= $product['price'] ?>" />
+                </div>
+            </div>
+
+            <div>
                 <p>Origin: </p>
                 <div>
                     <input type="text" name="productOrigin" placeholder="Enter new product origin"

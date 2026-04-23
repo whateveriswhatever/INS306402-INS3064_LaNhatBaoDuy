@@ -25,6 +25,7 @@
                 $data = [
                     "name" => $_POST["productName"] ?? "",
                     "category" => $_POST["productCategory"] ?? "",
+                    "price" => $_POST["productPrice"] ?? 1,
                     "quantity" => $_POST["productQuantity"] ?? 0,
                     "origin" => $_POST["productOrigin"] ?? "",
                     "distributor" => $_POST["productDistributor"] ?? "",
@@ -78,6 +79,7 @@
                 die("Product not found!");
             }
             $product["id"] = (int)$_GET["id"];
+            $product["origin"] = ($this->productModel)->searchCountryViaISOCode($product["origin"]);
             $this->view("products/edit", ["product" => $product]);
         }
 
@@ -88,6 +90,7 @@
                 "id" => $_POST["ID"],
                 "name" => $_POST["productName"] ?? "",
                 "category" => $_POST["productCategory"] ?? "",
+                "price" => $_POST["productPrice"] ?? 1,
                 "quantity" => $_POST["productQuantity"] ?? 0,
                 "origin" => $_POST["productOrigin"] ?? "",
                 "distributor" => $_POST["productDistributor"] ?? "",

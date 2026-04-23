@@ -20,6 +20,10 @@
         <input type="text" name="productCategory"
             value="<?= $old_data['category'] ?? '' ?>">
 
+        <label>Price</label>
+        <input type="number" name="productPrice"
+            value="<?= $old_data['price'] ?? 0 ?>"/>
+
         <label>Quantity</label>
         <input type="number" name="productQuantity"
             value="<?= $old_data['quantity'] ?? '' ?>">

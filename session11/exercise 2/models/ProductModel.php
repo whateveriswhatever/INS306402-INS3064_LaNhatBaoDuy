@@ -268,6 +268,15 @@
             return trim($str);
         }
 
+        public function searchCountryViaISOCode(string $isoCode): string {
+            $foundCountry = array_search($isoCode, $this->ISOCode);
+            if ($foundCountry !== false) {
+                return $foundCountry;
+            } else {
+                return "unknown";
+            }
+        }
+
         private function exchangeISOCode(string $country): string {
             if (!isset($this->ISOCode[$country])) {
                 return "";
@@ -282,6 +291,7 @@
             
             $name = $data["name"];
             $category = $data["category"];
+            $price = (int)$data["price"];
             $quantity = (int)$data["quantity"];
             $origin = $data["origin"];
             $distributor = $data["distributor"];
@@ -300,6 +310,7 @@
                 || $this->isContainSpecialChars($origin)) {echo "<div>Data input contains special chars</div>";return false;}
             echo gettype($quantity);
             if ($quantity < 0 || gettype($quantity) !== "integer") {echo "<div>Quantity data type must be integer</div>";return false;}
+            if ($price <= 0 || gettype($price) !== "integer") {echo "<div>Product price must be integer and larger than 0!</div>"; return false;}
             if (!isset($this->ISOCode[$origin])) {echo "<div>ISO country code not found!</div>";return false;}
     
             return true;
