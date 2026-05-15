@@ -11,6 +11,7 @@ drop table if exists Event;
 drop table if exists Attendance;
 drop table if exists Event_Registration;
 drop table if exists Annoucement;
+drop table if exists Feedback;
 
 create table Profile (
     ID int auto_increment primary key,
@@ -114,4 +115,16 @@ create table Annoucement(
 
     foreign key (club_ID) references Club(ID),
     foreign key (author_ID) references Student(ID)
+);
+
+create table Feedback (
+    ID int auto_increment primary key,
+    from_user_ID varchar(4) not null,
+    to_user_ID varchar(4) not null,
+    on_event_ID int not null,
+    at_timestamp timestamp default current_timestamp,
+
+    foreign key (from_user_ID) references Student(ID),
+    foreign key (to_user_ID) references Student(ID),
+    foreign key (on_event_ID) references Event(ID)
 );
