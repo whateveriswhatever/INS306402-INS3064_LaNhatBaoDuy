@@ -17,12 +17,14 @@
         private string $ID;
         private string $phoneNumber;
         private string $email;
+        private int $profileID;
 
-        public function __construct(string $n, string $id, string $pn, string $e) {
-            $this->name = $n;
-            $this->ID = $this->setID($id);
-            $this->phoneNumber = $pn;
-            $this->email = $e;
+        public function __construct(string $id, string $f, string $l,string $pn, string $e, int $pID ) {
+            $this->setName($f, $l);
+            $this->setID($id);
+            $this->setPhoneNumber($pn);
+            $this->setEmail($e);
+            $this->setProfileID($pID);
         }
 
         private function doesContainSpecialChars(string $str): bool {
@@ -35,7 +37,7 @@
         }
 
         // Setters / Getters
-        private function setName(string $f, string $l): bool {
+        private function setName(string $f, string $l): void {
             $normalize = function (string $str): string {
                 $chars = str_split($str);
                 $chars[0] = strtoupper($chars[0]);
@@ -48,38 +50,37 @@
             $hasNumber = function (string $str): bool {
                 return preg_match("/\d/", $str);
             };
-            if (gettype($f) !== "string" || gettype($l) !== "string") return false;
+            if (gettype($f) !== "string" || gettype($l) !== "string") throw new InvalidArgumentException("Data type must be string!");
             if ($this->doesContainSpecialChars($f) || $this->doesContainSpecialChars($l)
-                || $hasNumber($f) || $hasNumber($l)) return false;
+                || $hasNumber($f) || $hasNumber($l)) throw new InvalidArgumentException("Name can't have any special characters!");
             // dickinson -> Dickinson
             $transformedF = $normalize($f);
             $transformedL = $normalize($l);
             $n = implode(" ", [$transformedF, $transformedL]);
             $this->name = $n;
-            return true;
         }
 
        
 
-        private function setID(string $id): bool {
+        private function setID(string $id): void {
             $checkLength = function ($x): bool {return strlen($x) === 8 ? true : false;};
             $doesContainChars = function (string $x): bool {
                 if (preg_match("/[a-zA-Z]/", $x)) return true;
                 return false;
             };
-            if (gettype($id) !== "string") return false;
-            if (!$checkLength($id) || $doesContainChars($id)) return false;
+            if (gettype($id) !== "string") throw new InvalidArgumentException("Invalid data type for ID!");
+            if (!$checkLength($id) || $doesContainChars($id)) throw new InvalidArgumentException("Length of ID is not sufficicent and it contains special characters!");
+
             $this->ID = $id;
-            return true;
         }
 
-        private function setPhoneNumber(string $pn): bool {
+        private function setPhoneNumber(string $pn): void {
             $doesContainChars = function (string $x): bool {
                 if (preg_match("/[a-zA-Z]/", $x)) return true;
                 return false;
             };
-            if (gettype($pn) !== "string") return false;
-            if ($doesContainChars($pn)) return false;
+            if (gettype($pn) !== "string") throw new InvalidArgumentException("Invalid data type!");
+            if ($doesContainChars($pn)) throw new InvalidArgumentException("Phone number can't have any special chars or symbols!");
             $x = str_split($pn);
             $y = [];
             foreach ($x as $digit) {
@@ -87,12 +88,11 @@
             }
             $pn = implode('', $y);
             $this->phoneNumber = $pn;
-            return true;
         }
 
-        private function setEmail(string $e): bool {
+        private function setEmail(string $e): void {
             $x = explode('@', $e);
-            if (count($x) > 2) return false;
+            if (count($x) > 2) throw new InvalidArgumentException("Invalid phone number format!");
             $username = $x[0];
             $domain = $x[1];
 
@@ -124,10 +124,20 @@
             };
             $username = $lowerize($username);
             $domain = $lowerize($domain);
-            if (!$validateUsername($username) || !$validateDomain($domain)) return false;
+            if (!$validateUsername($username) || !$validateDomain($domain)) throw new InvalidArgumentException("Invalid username or invalid domain!");
             $this->email = implode('@', [$username, $domain]);
-            return true;
         }
+
+        private function setProfileID(int $id): void {
+            if (gettype($id) !== "integer" || $id < 1) throw new InvalidArgumentException("Invalid ID");
+            $this->profileID = $id;
+        }
+
+        public function getName(): string {return $this->name;}
+        public function getPhoneNumber(): string {return $this->phoneNumber;}
+        public function getEmail(): string {return $this->email;}
+        public function getID(): string {return $this->ID;}
+        public function getProfileID(): int {return $this->profileID;}
 
     }
 
@@ -136,15 +146,24 @@
             parent::__construct("student");
         }
 
-        // public function findByID(string $ID): ?Student {
-        //     $data = $this->findViaCreteria(["ID" => $ID]);
-        //     if (empty($data)) return null;
+        public function findByID(string $ID): ?Student {
+            $data = $this->findViaCriteria(["ID" => $ID]);
+            if (empty($data)) return null;
 
-        //     $row = $data[0];
-        //     return new Student();
-        // }
+            $row = $data[0];
+            return new Student(
+                $row["ID"],
+                $row["firstname"],
+                $row["lastname"],
+                $row["email"],
+                $row["phone"],
+                $row["profile_ID"]
+            );
+        }
 
-       
+        public function save(Student $s): bool {
+            return $this->updateViaCriteria(["email" => $s->getEmail()], ["ID" => $s->getID()]);
+        }
     }
 
     

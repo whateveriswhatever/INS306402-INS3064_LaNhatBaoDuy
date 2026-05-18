@@ -46,7 +46,7 @@
             }
         } 
 
-        public function findViaCreteria(array $criteria): array {
+        public function findViaCriteria(array $criteria): array {
             try {
                 $keys = array_keys($criteria);
                 $vals = array_values($criteria);
@@ -70,7 +70,7 @@
             }
         }
 
-        public function deleteViaCreteria(array $criteria): bool {
+        public function deleteViaCriteria(array $criteria): bool {
             try {
                 $keys = array_keys($criteria);
                 $vals = array_values($criteria);
@@ -132,6 +132,35 @@
 
         public function setTableName(string $name): void {
             $this->tableName = $name;
+        }
+    }
+
+    abstract class BaseModel {
+        public function doesContainSpecialChars(string $str): bool {
+            // \p{L}: Khớp với bất kỳ chữ cái nào từ bất kỳ ngôn ngữ nào (có dấu hoặc không)
+            // \p{N}: Khớp với bất kỳ con số nào
+            // \s: Khớp với khoảng trắng (dấu cách, tab, xuống dòng)
+            // Modifier /u: Bắt buộc phải có để PHP hiểu chuỗi theo chuẩn UTF-8
+            if (preg_match("/[^\p{L}\p{N}\s]/u", $str)) return true;
+            return false;
+        }
+
+        public function doesContainLetter(string $str): bool {
+            return false;
+        }
+
+        public function doesContainNumber(string $str): bool {
+            return false;
+        }
+
+        public function validateIDForAutoIncrement(int $x): bool {
+            return $x > 0 ? true : false; 
+        }
+
+        public function setIDForAutoIncrementType(int &$x, int $y): void {
+            $isOk = $this->validateIDForAutoIncrement($y);
+            if (!$isOk) throw new InvalidArgumentException("Invalid ID!");
+            $x = $y;
         }
     }
 ?>
